@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticker Pack Creator</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #app {
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid white;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #222;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            background-color: #333;
+            color: white;
+        }
+        button {
+            padding: 10px;
+            background-color: white;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: lightgray;
+        }
+        #stickerList {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+        li {
+            margin: 10px 0;
+            display: inline-block;
+        }
+        img {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Sticker Pack Creator</h1>
+        <input type="text" id="stickerName" placeholder="Sticker Name">
+        <input type="file" id="stickerImage" accept="image/*">
+        <button id="addSticker">Add Sticker</button>
+        <ul id="stickerList"></ul>
+    </div>
+
+    <script>
+        const addStickerButton = document.getElementById('addSticker');
+        const stickerNameInput = document.getElementById('stickerName');
+        const stickerImageInput = document.getElementById('stickerImage');
+        const stickerList = document.getElementById('stickerList');
+
+        function loadStickers() {
+            const stickers = JSON.parse(localStorage.getItem('stickers')) || [];
+            stickers.forEach(sticker => addStickerToList(sticker.name, sticker.image));
+        }
+
+        function addStickerToList(name, image) {
+            const li = document.createElement('li');
+            li.innerHTML = `<img src="${image}" alt="${name}"> ${name}`;
+            stickerList.appendChild(li);
+        }
+
+        addStickerButton.addEventListener('click', () => {
+            const stickerName = stickerNameInput.value.trim();
+            const stickerFile = stickerImageInput.files[0];
+            
+            if (stickerName && stickerFile) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    addStickerToList(stickerName, event.target.result);
+
+                    // Save sticker to local storage
+                    const stickers = JSON.parse(localStorage.getItem('stickers')) || [];
+                    stickers.push({ name: stickerName, image: event.target.result });
+                    localStorage.setItem('stickers', JSON.stringify(stickers));
+                }
+                reader.readAsDataURL(stickerFile);
+                stickerNameInput.value = '';
+                stickerImageInput.value = '';
+            } else {
+                alert("Please enter a sticker name and upload an image.");
+            }
+        });
+
+        // Load stickers on page load
+        loadStickers();
+    </script>
+</body>
+</html>
